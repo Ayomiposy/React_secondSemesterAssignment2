@@ -1,4 +1,8 @@
-📦 React_secondSemesterAssignment2 – Bejamas Product Page
+# 📦 React_secondSemesterAssignment2
+
+---
+
+Bejamas Product Page
 This project is a product listing and cart functionality demo built using **React, Bun, and Vite**. It dynamically renders products, allows users to add items to a cart, updates the cart count, supports filtering by category/price, and includes pagination for navigating product pages.
 
 ---

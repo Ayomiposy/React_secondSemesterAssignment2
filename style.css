@@ -1,3 +1,11 @@
 body {
   padding: 60px 70px;
 }
+
+/* Mobile styles */
+
+@media (max-width: 768px) {
+  body {
+    padding: 30px 40px;
+  }
+}

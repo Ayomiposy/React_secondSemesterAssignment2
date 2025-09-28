@@ -8,6 +8,7 @@ const products = [
     price: 1000,
     image: "./images/dog.png",
     category: "Pets",
+    range: "More than $200",
   },
 
   {
@@ -16,6 +17,7 @@ const products = [
     image: "./images/red-bench.png",
     price: 3.89,
     category: "People",
+    range: "Lower than $20",
   },
 
   {
@@ -33,6 +35,7 @@ const products = [
     image: "./images/egg-baloon.png",
     category: "Food",
     price: 93.89,
+    range: "$20 - $100",
   },
 
   {
@@ -41,6 +44,7 @@ const products = [
     image: "./images/Man.png",
     category: "People",
     price: 100.0,
+    range: "$20 - $100",
   },
 
   {
@@ -49,6 +53,7 @@ const products = [
     image: "./images/Architecture.png",
     category: "Landmarks",
     price: 101.0,
+    range: "$100 - $200",
   },
 
   {
@@ -57,23 +62,46 @@ const products = [
     image: "./images/Architecture.png",
     category: "Landmarks",
     price: 101.0,
+    range: "$100 - $200",
   },
 ];
-
+// Main App component
 function App() {
-  const [count, setCount] = useState("");
+  const [count, setCount] = useState(0);
+  const [popup, setPopup] = useState(false);
+  const [popupProduct, setPopupProduct] = useState(null);
 
-  const addToCart = () => {
+  const addToCart = (product) => {
     setCount(Number(count) + 1);
+    setPopupProduct(product);
+    setPopup(true);
+
+    setTimeout(() => {
+      setPopup(false);
+    }, 5000);
   };
 
   return (
     <>
       <Navbar count={count} />
       <Header addToCart={addToCart} />
-      {/* <ProductListing addToCart={addToCart} /> */}
-      <ProductList addToCart={addToCart} />
+      {/* <ProductList addToCart={addToCart} /> */}
+      <ProductListing addToCart={addToCart} />
       <Pagination totalPages={4} />
+
+      {popup && popupProduct && (
+        <div className="popup">
+          <div className="popup-title">
+            <p>
+              {popupProduct.name} <span>{popupProduct.price}</span>
+            </p>
+            <img src={popupProduct.image} alt={popupProduct.name} />
+          </div>
+          <button onClick={() => setPopup(false)} className="clear-popup">
+            CLEAR
+          </button>
+        </div>
+      )}
     </>
   );
 }
@@ -97,6 +125,7 @@ function Navbar({ count }) {
   );
 }
 
+// My Main header component
 function Header({ addToCart }) {
   return (
     <header>
@@ -106,6 +135,7 @@ function Header({ addToCart }) {
   );
 }
 
+// Header product, the main product displayed in the header section
 function HeaderProduct({ addToCart }) {
   const product = products.find((p) => p.id === 0);
 
@@ -114,7 +144,7 @@ function HeaderProduct({ addToCart }) {
       <div className="top-product" key={product.id}>
         <div className="header-product-top">
           <h2>{product.name}</h2>
-          <button onClick={addToCart}>Add to Cart</button>
+          <button onClick={() => addToCart(product)}>Add to Cart</button>
         </div>
         <img
           src={product.image}
@@ -126,6 +156,7 @@ function HeaderProduct({ addToCart }) {
   );
 }
 
+// Hearder product description component
 function HeaderDescription() {
   return (
     <div className="product-description">
@@ -164,20 +195,37 @@ function HeaderDescription() {
   );
 }
 
-// function ProductListing({ addToCart }) {
-//   return (
-//     <div className="productlist">
-//       <ProductList addToCart={addToCart} />
-//     </div>
-//   );
-// }
+function ProductListing({ addToCart }) {
+  return (
+    <div className="productlist">
+      <div className="list-title">
+        <h2 className="photography">
+          Photography / <span>Premium photos</span>
+        </h2>
+        <img
+          src="./images/mobilefilter_icon.png"
+          className="menu-icon"
+          alt="Menu icon"
+        />
+        <div className="sort-all">
+          <img src="./images/arrow-up-down.png" alt="arrow up down icon" />
+          <p>Sort By</p>
+          <p className="sort-price">Price</p>
+          <img src="./images/sort.png" alt="arrow down icon" />
+        </div>
+      </div>
+      <ProductList addToCart={addToCart} />
+    </div>
+  );
+}
 
+// function to handle product filter based on checkboxes
 function Filter({ handleFilterProducts }) {
   const [Ticked, setTicked] = useState({});
 
   const handleTicked = (e) => {
-    const { id, checked } = e.target;
-    setTicked((prev) => ({ ...prev, [id]: checked }));
+    const { value, checked } = e.target;
+    setTicked((prev) => ({ ...prev, [value]: checked }));
   };
 
   function renderCheckbox(id, label) {
@@ -232,10 +280,16 @@ function Filter({ handleFilterProducts }) {
         <br />
         {renderCheckbox("More than $200", "More than $200")}
       </div>
+
+      {/* <div className="filter-buttons">
+        <button className="filter-clear">CLEAR</button>
+        <button className="filter-save">SAVE</button>
+      </div> */}
     </aside>
   );
 }
 
+// Main product listing component (holds both filter section and product grid)
 function ProductList({ addToCart }) {
   const [isChecked, setIsChecked] = useState([]);
   const handleFilterProducts = (e) => {
@@ -248,7 +302,9 @@ function ProductList({ addToCart }) {
   // filtered product
   const filteredproduct =
     isChecked.length > 0
-      ? products.filter((p) => isChecked.includes(p.category))
+      ? products.filter(
+          (p) => isChecked.includes(p.category) || isChecked.includes(p.range)
+        )
       : products;
 
   return (
@@ -267,19 +323,21 @@ function ProductList({ addToCart }) {
   );
 }
 
-function ProductCard({ product }) {
+// Product grid
+function ProductCard({ product, addToCart }) {
   if (product.id === 0) return null;
   return (
     <li className="product-card">
       <img src={product.image} alt={product.name} />
-      <button>Add to Cart</button>
+      <button onClick={() => addToCart(product)}>Add to Cart</button>
       <p className="product-category">{product.category}</p>
       <h2 className="product-title">{product.name}</h2>
-      <p className="product-price">${product.price}</p>
+      <p className="product-price">${Number(product.price).toFixed(2)}</p>
     </li>
   );
 }
 
+// footer pagination component
 function Pagination({ totalPages }) {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -293,11 +351,13 @@ function Pagination({ totalPages }) {
 
   return (
     <div className="pagination">
-      <button
+      <div
         className="arrow-left"
         onClick={handlePrev}
         disabled={currentPage === 1}
-      ></button>
+      >
+        <img src="./images/arrowleft.png" alt="arrow left" />
+      </div>
       {[...Array(totalPages)].map((_, i) => {
         const page = i + 1;
         return (
@@ -310,11 +370,13 @@ function Pagination({ totalPages }) {
           </p>
         );
       })}
-      <button
+      <div
         className="arrow-right"
         onClick={handleNext}
         disabled={currentPage === totalPages}
-      ></button>
+      >
+        <img src="./images/arrowright.png" alt="arrow right" />
+      </div>
     </div>
   );
 }
